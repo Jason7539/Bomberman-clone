@@ -18,12 +18,25 @@ def main():
     clock = pygame.time.Clock()
     
     # tuple representing the x and y value of the window
-    screen_size = (600, 600)
+    # x = 1050, y = 910 
+    screen_size = (15 * 70, 13 * 70)
 
     # create a window where the background will be drawn with the same size of the background 
     screen = pygame.display.set_mode(screen_size)
 
+    # upload the background
+    background = pygame.image.load(os.path.join("images", "background.png")) 
 
+    # load the hard blocks images 
+    hard_blocks = pygame.image.load(os.path.join("images", "hard-block.png"))
+
+    # draw the hard blocks on the background
+    background.blit(hard_blocks, (0,0))
+
+    # draw background on the screen 
+    screen.blit(background, (0,0))
+
+    
     #create game objects
     p1 = Player.PlayerOne()
     one_group = pygame.sprite.Group(p1)
@@ -46,4 +59,5 @@ def main():
 
 
 main()
+
 
