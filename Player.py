@@ -32,6 +32,13 @@ class PlayerOne(Player):
 
 
     def update(self, location = None):
+        if location = "up":
+            pass
+        elif location = "right":
+            pass
+        
+        
+
         self.rect.y += 7
         
  
