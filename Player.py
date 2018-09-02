@@ -2,6 +2,9 @@ import pygame, sys, os, time, util
 from pygame.event import clear
 from pygame.locals import *
 import bombs
+# to do list
+# need to update image to choose from a list to creat animation 
+# you can place one bomb every x amount of seconds 
 
 class Player(pygame.sprite.Sprite):
     """ Parent class that User controls """
@@ -24,6 +27,7 @@ class PlayerOne(Player):
         
         Player.__init__(self)
         self.speed = 10
+        
         self.image, self.rect = util.load_image(os.path.join('images', 'player-one.png'))
 
 
@@ -36,5 +40,6 @@ class PlayerTwo(Player):
     def __init__(self):
 
         Player.__init__(self)
+        self.image, self.rect = util.load_image(os.path.join('images', 'player-two.png'))
         self.speed = 10
         
