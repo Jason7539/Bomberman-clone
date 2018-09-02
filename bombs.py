@@ -1,4 +1,8 @@
 # bombs have a damage radius
+# pickups:
+# increase amount of bombs you can place 
+# increase the radius of bombs 
+# bombs can only take out one block at a time 
 
 class Bomb():
     def __init__(self):
