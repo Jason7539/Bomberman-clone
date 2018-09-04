@@ -10,12 +10,10 @@ import Player
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 
 
-
 def main():
-    # initializes pygame 
-    pygame.init()
+    pygame.init() # initializes pygame
     pygame.display.set_caption("Bomberdude")
-    # clock object used to control fps 
+    # clock object used to control fps
     clock = pygame.time.Clock()
 
     # tuple representing the x and y value of the window
@@ -28,7 +26,7 @@ def main():
     # upload the background
     background = pygame.image.load(os.path.join("images", "background.png"))
 
-    #new background to clear
+    # new background used to clear old player model
     new_background = pygame.image.load(os.path.join("images", "background.png"))
     # new_background = pygame.Surface((1050, 910))
     # new_background.fill((Color("gold")))
@@ -36,12 +34,11 @@ def main():
     # load the hard blocks images
     hard_blocks = pygame.image.load(os.path.join("images", "hard-block.png"))
 
-    # the size of hard blocks used work with borders 
+    # the size of hard blocks used work with borders
     x_block, y_block = hard_blocks.get_size()
 
     # turn this into a method
     # draw the hard blocks on the background
-
     # # draw to top borders
     top_x = 0
     for i in range(0, 14):
@@ -67,22 +64,61 @@ def main():
         background.blit(hard_blocks, (bottom_x, left_y))
         bottom_x += x_block
 
+    # draw the impassable blocks inside the borders
+    # 2d list representing the inner map 0s symbolizes empty space and 1s are impassable blocks
+    inner_map = [['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'],
+                 ['0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0'],
+                 ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'],
+                 ['0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0'],
+                 ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'],
+                 ['0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0'],
+                 ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'],
+                 ['0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0'],
+                 ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'],
+                 ['0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0'],
+                 ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0']]
+
+
+    # creates the inner blocks and rectangles associated with each one
+    impassable_blocks = [] # list used to store the rectangle of impassable blocks
+    y = 1 # keep track of what row we are printing
+    for rows in inner_map:
+        x = 1 # keeps track of which column
+        for tile in rows:
+            if tile == "0":
+                pass
+            elif tile == "1":
+                background.blit(hard_blocks,( x * x_block, y *y_block)) # draw a block on the background
+
+            impassable_blocks.append(Rect(x * x_block, y * y_block, x_block, y_block))
+            x += 1
+
+        y += 1
+
+
+
+
     # draw background on the screen
     screen.blit(background, (0, 0))
 
-    # create game objects
+    # create user controlled objects
     p1 = Player.PlayerOne()
     one_group = pygame.sprite.Group(p1)
 
+    p2 = Player.PlayerTwo()
+    two_group = pygame.sprite.Group(p2)
+
+
+
     # variable that updates player movement
-    location = ""
+    location_one = ""
+    location_two = ""
 
     # main loop
     while 1:
         # makes the game run at 60 fps
         clock.tick(60)
-        
-        
+
         for event in pygame.event.get():
             # quit the game and exit the program if the close button is clicked
             if event.type == QUIT:
@@ -93,50 +129,86 @@ def main():
             elif event.type == KEYDOWN:
                 # pause the game
                 if event.key == K_ESCAPE:
+                    main()
                     pygame.time.delay(1000)
 
-                # control player movement
+                # control player one  movement
                 if event.key == K_w:
-                    location = "up"
+                    location_one = "up"
                 elif event.key == K_s:
-                    location = "down"
+                    location_one = "down"
                 elif event.key == K_a:
-                    location = "left"
+                    location_one = "left"
                 elif event.key == K_d:
-                    location = "right"
+                    location_one = "right"
+
+                # control player two movement
+                if event.key == K_UP:
+                    location_two = "up"
+                elif event.key == K_DOWN:
+                    location_two = "down"
+                elif event.key == K_LEFT:
+                    location_two = "left"
+                elif event.key == K_RIGHT:
+                    location_two = "right"
+
 
             elif event.type == KEYUP:
-                # process controls player movement when a key is let go
+                # process controls player one movement when a key is let go
                 if event.key == K_w:
-                    location = ""
+                    location_one = ""
                 elif event.key == K_s:
-                    location = ""
+                    location_one = ""
                 elif event.key == K_a:
-                    location = ""
+                    location_one = ""
                 elif event.key == K_d:
-                    location = ""
-        
-        # prevents the player from going through the borders 
-        if location == "left" and p1.rect.x <= x_block:
-            location = ""
-        if location == "right" and p1.rect.x + p1.rect.width >= (screen.get_width() - x_block ):
-            location = ""
-        if location == "up" and p1.rect.y <= y_block:
-            location = ""
-        if location == "down" and p1.rect.y + p1.rect.height >= (screen.get_height() - y_block):
-            location = ""
+                    location_one = ""
 
-            
-        one_group.update(location)
-        one_group.clear(screen, new_background)
+                # process controls for player two movement when a key is let go
+                if event.key == K_UP:
+                    location_two = ""
+                elif event.key == K_DOWN:
+                    location_two = ""
+                elif event.key == K_LEFT:
+                    location_two = ""
+                elif event.key == K_RIGHT:
+                    location_two = ""
+
+        # prevents the player  one from going through the borders
+        if location_one == "left" and p1.rect.x <= x_block:
+            location_one = ""
+        if location_one == "right" and p1.rect.x + p1.rect.width >= (screen.get_width() - x_block):
+            location_one = ""
+        if location_one == "up" and p1.rect.y <= y_block:
+            location_one = ""
+        if location_one == "down" and p1.rect.y + p1.rect.height >= (screen.get_height() - y_block):
+            location_one = ""
+
+        # prevents the player two from going through the borders
+        if location_two == "left" and p2.rect.x <= x_block:
+            location_two = ""
+        if location_two == "right" and p2.rect.x + p2.rect.width >= (screen.get_width() - x_block):
+            location_two = ""
+        if location_two == "up" and p2.rect.y <= y_block:
+            location_two = ""
+        if location_two == "down" and p2.rect.y + p2.rect.height >= (screen.get_height() - y_block):
+            location_two = ""
+
+
+        one_group.update(location_one)
+        one_group.clear(screen, background)
         one_group.draw(screen)
 
-        # draw the player rectangle
-        pygame.draw.rect(screen, Color("gold"), p1.rect)
-        
+        two_group.update(location_two)
+        two_group.clear(screen, background)
+        two_group.draw(screen)
+
+        # draw the player hitbox
+        #pygame.draw.rect(screen, Color("gold"), p1.rect)
+
         pygame.display.update()
 
-        pygame.event.pump() # clear the event queue
+        pygame.event.pump()  # clear the event queue
 
 
 main()

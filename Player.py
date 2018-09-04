@@ -7,6 +7,7 @@ import bombs
 # to do list
 # need to update image to choose from a list to creat animation
 # you can place one bomb every x amount of seconds
+# put movement in a array to allow for multiple angles
 
 class Player(pygame.sprite.Sprite):
     """ Parent class that User controls """
@@ -49,7 +50,27 @@ class PlayerOne(Player):
 
 
 class PlayerTwo(Player):
+    """ Actual object that Player two interacts with   """
+
+    # change this for animation
     def __init__(self):
+        """ Constructor """
         Player.__init__(self)
-        self.image, self.rect = util.load_image(os.path.join('images', 'player-two.png'))
         self.speed = 10
+
+        self.image, self.rect = util.load_image(os.path.join('images', 'player-two.png'))
+        self.rect.x = 910
+        self.rect.y = 770
+
+    def update(self, location=None):
+
+        " Move the player position based on the the speed variable and the location argument"
+        if location is "up":
+            self.rect.y -= self.speed
+        elif location is "down":
+            self.rect.y += self.speed
+        elif location is "right":
+            self.rect.x += self.speed
+        elif location is "left":
+            self.rect.x -= self.speed
+
