@@ -1,15 +1,65 @@
 import pygame, sys, os, time
 from pygame.event import clear
 from pygame.locals import *
-import Player
+import Player, bombs
 
 # to do list
-# maybe make a start screen play, options etc 
+# maybe make a start screen play, options etc
+# test collide
+# turn the map creation into a method
+# maybe change border and put it in the game map
+# work on bombs and placing bombs 
+
 
 # makes the game window centered 
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 
+# test collison
+def test_collision(rect, list_rect):
+    """ test whether rect collides with any rects in list rects and return that lsit of rects"""
+    collide_list = []
+    for r in list_rect:
+        if rect.colliderect(r):
+            collide_list.append(r)
+    return collide_list
+            
 
+# move rect. if a rect collides with a list of rects based on movement
+def move(rect, direction, list_rect, speed):
+    # see where the collision occures 
+    dict_direction = {"top" : False, "bottom" : False, "right" : False, "left" : False}
+
+    # move the rect if it collides with list_rect stop the collision 
+    if direction == "top": 
+        rect.top += speed # move the rect 
+        collide_list = test_collision(rect, list_rect) # test if it collide 
+
+        for r in collide_list: # prevent the rect from colliding 
+            rect.top = r.bottom
+        
+    elif direction == "down":
+        rect.bottom += speed # move the rect 
+        collide_list = test_collision(rect, list_rect) # test if it collide 
+
+        for r in collide_list: # prevent the rect from colliding 
+            rect.bottom = r.top
+    elif direction == "left":
+        rect.left += speed # move the rect 
+        collide_list = test_collision(rect, list_rect) # test if it collide 
+
+        for r in collide_list: # prevent the rect from colliding 
+            rect.left = r.right
+    elif direction == "right":
+        rect.right += speed # move the rect 
+        collide_list = test_collision(rect, list_rect) # test if it collide 
+
+        for r in collide_list: # prevent the rect from colliding 
+            rect.right = r.left
+
+
+
+
+# intialize variables and main game loop 
 def main():
     pygame.init() # initializes pygame
     pygame.display.set_caption("Bomberdude")
@@ -89,8 +139,7 @@ def main():
                 pass
             elif tile == "1":
                 background.blit(hard_blocks,( x * x_block, y *y_block)) # draw a block on the background
-
-            impassable_blocks.append(Rect(x * x_block, y * y_block, x_block, y_block))
+                impassable_blocks.append(Rect(x * x_block, y * y_block, x_block, y_block))
             x += 1
 
         y += 1
@@ -114,12 +163,21 @@ def main():
     location_one = ""
     location_two = ""
 
+    # list that keep tracks and updates the bombs player1 drops
+    p1_bombs = pygame.sprite.Group()
+
+    # messing with bomb reload
+    blomb = pygame.USEREVENT + 1
+    exploded = 0
     # main loop
     while 1:
         # makes the game run at 60 fps
         clock.tick(60)
 
         for event in pygame.event.get():
+            if event.type == pygame.USEREVENT + 1:
+                print("boom")
+            
             # quit the game and exit the program if the close button is clicked
             if event.type == QUIT:
                 pygame.quit()
@@ -141,6 +199,14 @@ def main():
                     location_one = "left"
                 elif event.key == K_d:
                     location_one = "right"
+                # place bombs
+                if event.key == K_SPACE:
+                    print("space")
+                    # control that you only drop a bomb                     
+                    print("Official = ",pygame.time.get_ticks())
+                    p1_bombs.add(p1.drop_bomb())
+
+
 
                 # control player two movement
                 if event.key == K_UP:
@@ -173,6 +239,9 @@ def main():
                     location_two = ""
                 elif event.key == K_RIGHT:
                     location_two = ""
+                elif event.key == K_0 or event.key == K_KP0:
+                    print("zero")
+                    
 
         # prevents the player  one from going through the borders
         if location_one == "left" and p1.rect.x <= x_block:
@@ -194,21 +263,43 @@ def main():
         if location_two == "down" and p2.rect.y + p2.rect.height >= (screen.get_height() - y_block):
             location_two = ""
 
+        # test collision test_collison(rect, location, rect_list)
+        
 
-        one_group.update(location_one)
+
+        one_group.update(impassable_blocks, location_one)
         one_group.clear(screen, background)
         one_group.draw(screen)
 
-        two_group.update(location_two)
+        two_group.update(impassable_blocks, location_two)
         two_group.clear(screen, background)
         two_group.draw(screen)
 
+        # keeps track of player one bombs 
+        p1_bombs.update(pygame.time.get_ticks(), p1_bombs, screen, background)
+        
+        # get a list of active bombs 
+        p1_active_bombs = p1_bombs.sprites()
+
+        # remove the bomb from group list after it explodes 
+        for booms in p1_active_bombs:
+            if booms.exploding_state == 2:
+                print(p1_bombs.sprites())
+                booms.clear(screen, background)
+                p1_bombs.remove(booms)
+                print(p1_bombs.sprites())
+                
+        p1_bombs.draw(screen)
+
         # draw the player hitbox
         #pygame.draw.rect(screen, Color("gold"), p1.rect)
+                                 
 
         pygame.display.update()
+        
 
         pygame.event.pump()  # clear the event queue
+        
 
 
 main()
